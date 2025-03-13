@@ -25,7 +25,7 @@ const PibChart = () => {
   if (error || !data) {
     return (
       <Layout title="Evolução do PIB Brasileiro" subtitle="Erro ao carregar dados">
-        <div className="text-center p-8 bg-red-50 rounded-lg border border-red-100">
+        <div className="text-center p-4 sm:p-8 bg-red-50 rounded-lg border border-red-100">
           <p className="text-red-500">
             Ocorreu um erro ao carregar os dados. Por favor, tente novamente mais tarde.
           </p>
@@ -45,21 +45,27 @@ const PibChart = () => {
       type: 'line',
       fontFamily: 'Inter, sans-serif',
       toolbar: {
-        show: true
+        show: true,
+        tools: {
+          download: true,
+          selection: true,
+          zoom: true,
+          zoomin: true,
+          zoomout: true,
+          pan: true,
+          reset: true
+        }
       },
       animations: {
         enabled: true,
         easing: 'easeinout',
         speed: 800,
-        animateGradually: {
-          enabled: true,
-          delay: 150
-        },
         dynamicAnimation: {
           enabled: true,
           speed: 350
         }
-      }
+      },
+      background: 'transparent'
     },
     stroke: {
       width: [3, 3],
@@ -67,12 +73,21 @@ const PibChart = () => {
     },
     colors: ['#0066CC', '#00CC99'],
     title: {
-      text: 'Evolução do PIB Brasileiro (em dólares)',
+      text: 'Evolução do PIB Brasileiro',
       align: 'center',
       style: {
-        fontSize: '18px',
+        fontSize: '16px',
         fontWeight: 500,
         color: '#263238'
+      },
+      margin: 10
+    },
+    subtitle: {
+      text: '(em dólares)',
+      align: 'center',
+      style: {
+        fontSize: '14px',
+        color: '#666'
       }
     },
     xaxis: {
@@ -80,40 +95,62 @@ const PibChart = () => {
       title: {
         text: 'Anos',
         style: {
-          fontSize: '14px',
+          fontSize: '12px',
           fontWeight: 400
         }
-      }
+      },
+      labels: {
+        style: {
+          fontSize: '11px'
+        },
+        rotateAlways: false,
+        rotate: -45,
+        trim: true,
+        maxHeight: 120
+      },
+      tickAmount: window.innerWidth < 768 ? 6 : undefined
     },
     yaxis: [
       {
         title: {
           text: 'PIB Total (USD)',
           style: {
-            fontSize: '14px',
+            fontSize: '12px',
             fontWeight: 400
           }
         },
         labels: {
           formatter: function(value) {
             return formatCurrency(value);
-          }
-        }
+          },
+          style: {
+            fontSize: '11px'
+          },
+          minWidth: 0
+        },
+        forceNiceScale: true,
+        decimalsInFloat: 0
       },
       {
         opposite: true,
         title: {
           text: 'PIB per Capita (USD)',
           style: {
-            fontSize: '14px',
+            fontSize: '12px',
             fontWeight: 400
           }
         },
         labels: {
           formatter: function(value) {
             return formatCurrency(value);
-          }
-        }
+          },
+          style: {
+            fontSize: '11px'
+          },
+          minWidth: 0
+        },
+        forceNiceScale: true,
+        decimalsInFloat: 0
       }
     ],
     tooltip: {
@@ -121,15 +158,21 @@ const PibChart = () => {
         formatter: function(value) {
           return formatCurrency(value);
         }
-      }
+      },
+      shared: true,
+      intersect: false,
+      followCursor: true
     },
     legend: {
       position: 'top',
       horizontalAlign: 'center',
       floating: false,
       offsetY: -5,
-      labels: {
-        useSeriesColors: false
+      fontSize: '13px',
+      markers: {
+        width: 12,
+        height: 12,
+        radius: 6
       }
     },
     grid: {
@@ -137,21 +180,84 @@ const PibChart = () => {
       row: {
         colors: ['#f8f9fa', 'transparent'],
         opacity: 0.5
+      },
+      padding: {
+        right: window.innerWidth < 768 ? 10 : 30,
+        left: window.innerWidth < 768 ? 10 : 30
       }
     },
     markers: {
-      size: 4,
+      size: window.innerWidth < 768 ? 3 : 4,
       hover: {
-        size: 6
+        size: window.innerWidth < 768 ? 5 : 6
       }
     },
     responsive: [
       {
-        breakpoint: 768,
+        breakpoint: 1024,
         options: {
+          chart: {
+            height: 400
+          },
           legend: {
             position: 'bottom',
             offsetY: 10
+          }
+        }
+      },
+      {
+        breakpoint: 768,
+        options: {
+          chart: {
+            height: 350,
+            toolbar: {
+              tools: {
+                download: true,
+                selection: false,
+                zoom: true,
+                zoomin: true,
+                zoomout: true,
+                pan: true,
+                reset: true
+              }
+            }
+          },
+          legend: {
+            position: 'bottom',
+            offsetY: 5,
+            fontSize: '12px'
+          },
+          markers: {
+            size: 3
+          }
+        }
+      },
+      {
+        breakpoint: 480,
+        options: {
+          chart: {
+            height: 300,
+            toolbar: {
+              tools: {
+                download: true,
+                selection: false,
+                zoom: false,
+                zoomin: true,
+                zoomout: true,
+                pan: true,
+                reset: true
+              }
+            }
+          },
+          title: {
+            style: {
+              fontSize: '14px'
+            }
+          },
+          subtitle: {
+            style: {
+              fontSize: '12px'
+            }
           }
         }
       }
@@ -171,18 +277,19 @@ const PibChart = () => {
 
   return (
     <Layout title="Evolução do PIB Brasileiro" subtitle="Análise Temporal do Produto Interno Bruto">
-      <div className="glassmorphism rounded-xl p-6 shadow-lg animate-slide-up transition-smooth">
-        <div className="chart-container">
+      <div className="glassmorphism rounded-xl p-2 sm:p-4 md:p-6 shadow-lg animate-slide-up transition-smooth">
+        <div className="chart-container w-full overflow-hidden">
           <Chart 
             options={chartOptions} 
             series={chartSeries} 
             type="line" 
-            height={500} 
+            height={window.innerWidth < 480 ? 300 : window.innerWidth < 768 ? 350 : 500} 
+            className="w-full"
           />
         </div>
         
-        <div className="mt-8 text-center">
-          <p className="text-gray-600 max-w-3xl mx-auto">
+        <div className="mt-4 sm:mt-6 md:mt-8 text-center px-2 sm:px-4">
+          <p className="text-gray-600 text-sm sm:text-base max-w-3xl mx-auto">
             Este gráfico apresenta a evolução do PIB total brasileiro e do PIB per capita ao longo dos anos,
             permitindo observar as tendências de crescimento econômico do país.
           </p>
